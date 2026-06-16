@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Telegram Circle Poster</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #17171b;
+    --surface2: #1e1e24;
+    --border: #2a2a32;
+    --accent: #2AABEE;
+    --accent-dim: rgba(42,171,238,0.12);
+    --text: #f0f0f4;
+    --muted: #6b6b7a;
+    --success: #3ddc84;
+    --error: #ff5f5f;
+    --warning: #f5a623;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px;
+  }
+
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-dot svg { width: 15px; height: 15px; fill: #0d0d0f; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 100%;
+    max-width: 460px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 16px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+
+  input[type="text"], input[type="password"], input[type="datetime-local"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  .hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+  .hint a { color: var(--accent); text-decoration: none; }
+
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .dropzone:hover, .dropzone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .dropzone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .dz-icon {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+
+  .dz-icon svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .dz-label { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+  .dz-sub { font-size: 12px; color: var(--muted); }
+
+  .file-chosen { font-size: 13px; color: var(--success); font-weight: 500; margin-bottom: 16px; display: none; }
+
+  /* Schedule toggle */
+  .schedule-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-switch {
+    width: 40px; height: 22px;
+    background: var(--border);
+    border-radius: 99px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on { background: var(--accent); }
+
+  .toggle-knob {
+    width: 16px; height: 16px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+
+  .toggle-switch.on .toggle-knob { transform: translateX(18px); }
+
+  .toggle-label { font-size: 14px; font-weight: 500; }
+  .toggle-sub { font-size: 12px; color: var(--muted); }
+
+  .schedule-field { display: none; }
+  .schedule-field.visible { display: block; }
+
+  /* Upload progress */
+  .upload-progress { display: none; margin-bottom: 16px; }
+  .progress-bar-bg { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; margin-bottom: 6px; }
+  .progress-bar-fill { height: 100%; background: var(--accent); border-radius: 99px; width: 0%; transition: width 0.3s; }
+  .progress-label { font-size: 12px; color: var(--muted); }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #0d0d0f;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .result {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .result.success { background: rgba(61,220,132,0.1); border: 1px solid rgba(61,220,132,0.3); color: var(--success); }
+  .result.error { background: rgba(255,95,95,0.1); border: 1px solid rgba(255,95,95,0.3); color: var(--error); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .setup-toggle { font-size: 12px; color: var(--muted); text-align: center; cursor: pointer; user-select: none; }
+  .setup-toggle span { color: var(--accent); }
+
+  /* Scheduled jobs list */
+  .jobs-card { display: none; }
+  .jobs-card.visible { display: block; }
+
+  .jobs-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .refresh-btn {
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+  }
+
+  .job-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .job-info { flex: 1; min-width: 0; }
+  .job-time { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .job-channel { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .job-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+
+  .job-status.pending { background: rgba(42,171,238,0.15); color: var(--accent); }
+  .job-status.sent { background: rgba(61,220,132,0.15); color: var(--success); }
+  .job-status.failed { background: rgba(255,95,95,0.15); color: var(--error); }
+  .job-status.cancelled { background: rgba(107,107,122,0.15); color: var(--muted); }
+
+  .cancel-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  .cancel-btn:hover { color: var(--error); }
+  .no-jobs { font-size: 13px; color: var(--muted); text-align: center; padding: 16px 0; }
+
+  @media (max-width: 480px) {
+    .card { padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <div class="logo-dot">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+  </div>
+  Circle Poster
+</div>
+
+<!-- Main card -->
+<div class="card">
+  <h1>Post as Round Video</h1>
+  <p class="subtitle">Upload your face cam video and post it to your channel as a circle — instantly or scheduled.</p>
+
+  <!-- Setup -->
+  <div id="setupSection">
+    <div class="field">
+      <label>Bot Token</label>
+      <input type="password" id="botToken" placeholder="123456789:AAF..." autocomplete="off" />
+      <p class="hint">From <a href="https://t.me/BotFather" target="_blank">@BotFather</a></p>
+    </div>
+    <div class="field">
+      <label>Channel ID or Username</label>
+      <input type="text" id="channelId" placeholder="@yourchannel or -100123456789" />
+      <p class="hint">Bot must be an admin in the channel.</p>
+    </div>
+  </div>
+
+  <div class="setup-toggle" id="toggleSetup" onclick="toggleSetup()">
+    <span>Hide setup fields</span> — saved in browser
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Video upload -->
+  <div class="field">
+    <label>Video File</label>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="videoFile" accept="video/*" onchange="onFileSelected(this)" />
+      <div class="dz-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+      </div>
+      <div class="dz-label">Tap to choose video</div>
+      <div class="dz-sub">MP4, MOV, or any video format</div>
+    </div>
+    <div class="file-chosen" id="fileChosen">✓ <span id="fileName"></span></div>
+  </div>
+
+  <!-- Upload progress (for Drive upload) -->
+  <div class="upload-progress" id="uploadProgress">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">Uploading...</div>
+  </div>
+
+  <!-- Schedule toggle -->
+  <div class="schedule-toggle" onclick="toggleSchedule()">
+    <div class="toggle-switch" id="toggleSwitch">
+      <div class="toggle-knob"></div>
+    </div>
+    <div>
+      <div class="toggle-label">Schedule for later</div>
+      <div class="toggle-sub">Post at a specific date and time</div>
+    </div>
+  </div>
+
+  <!-- Schedule datetime -->
+  <div class="field schedule-field" id="scheduleField">
+    <label>Send at</label>
+    <input type="datetime-local" id="scheduleTime" />
+  </div>
+
+  <button class="btn" id="sendBtn" onclick="handleSend()" disabled>Post to Channel</button>
+
+  <div class="result" id="result"></div>
+</div>
+
+<!-- Scheduled jobs -->
+<div class="card jobs-card" id="jobsCard">
+  <div class="jobs-title">
+    Scheduled Posts
+    <button class="refresh-btn" onclick="loadJobs()">↻ Refresh</button>
+  </div>
+  <div id="jobsList"><div class="no-jobs">No scheduled posts yet.</div></div>
+</div>
+
+<script>
+  // ---- Config ----
+  // After deploying to Netlify, this URL is auto-detected
+  const FUNCTION_BASE = window.location.origin + "/.netlify/functions/schedule";
+
+  let selectedFile = null;
+  let scheduleEnabled = false;
+  let setupVisible = true;
+
+  // ---- Init ----
+  window.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('tg_bot_token');
+    const channel = localStorage.getItem('tg_channel_id');
+    if (token) document.getElementById('botToken').value = token;
+    if (channel) document.getElementById('channelId').value = channel;
+    if (token && channel) toggleSetup(false);
+
+    // Default schedule time to 1 hour from now
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    d.setSeconds(0, 0);
+    document.getElementById('scheduleTime').value = d.toISOString().slice(0, 16);
+
+    loadJobs();
+  });
+
+  document.getElementById('botToken').addEventListener('change', () => {
+    localStorage.setItem('tg_bot_token', document.getElementById('botToken').value.trim());
+  });
+  document.getElementById('channelId').addEventListener('change', () => {
+    localStorage.setItem('tg_channel_id', document.getElementById('channelId').value.trim());
+  });
+
+  // ---- Setup toggle ----
+  function toggleSetup(forceState) {
+    const section = document.getElementById('setupSection');
+    const toggle = document.getElementById('toggleSetup');
+    setupVisible = forceState !== undefined ? forceState : !setupVisible;
+    section.style.display = setupVisible ? 'block' : 'none';
+    toggle.innerHTML = setupVisible
+      ? '<span>Hide setup fields</span> — saved in browser'
+      : '<span>Show setup fields</span> — saved in browser';
+  }
+
+  // ---- Schedule toggle ----
+  function toggleSchedule() {
+    scheduleEnabled = !scheduleEnabled;
+    const sw = document.getElementById('toggleSwitch');
+    const field = document.getElementById('scheduleField');
+    const btn = document.getElementById('sendBtn');
+    sw.classList.toggle('on', scheduleEnabled);
+    field.classList.toggle('visible', scheduleEnabled);
+    if (selectedFile) {
+      btn.textContent = scheduleEnabled ? 'Schedule Post' : 'Post to Channel';
+    }
+  }
+
+  // ---- File select ----
+  const dropzone = document.getElementById('dropzone');
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('video/')) setFile(file);
+  });
+
+  function onFileSelected(input) {
+    if (input.files && input.files[0]) setFile(input.files[0]);
+  }
+
+  function setFile(file) {
+    selectedFile = file;
+    document.getElementById('fileChosen').style.display = 'block';
+    document.getElementById('fileName').textContent = file.name;
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = false;
+    btn.textContent = scheduleEnabled ? 'Schedule Post' : 'Post to Channel';
+    hideResult();
+  }
+
+  function hideResult() {
+    document.getElementById('result').style.display = 'none';
+  }
+
+  function showResult(msg, type) {
+    const r = document.getElementById('result');
+    r.textContent = msg;
+    r.className = 'result ' + type;
+    r.style.display = 'block';
+  }
+
+  function setProgress(pct, label) {
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = label;
+  }
+
+  function hideProgress() {
+    document.getElementById('uploadProgress').style.display = 'none';
+  }
+
+  // ---- Main send handler ----
+  async function handleSend() {
+    const token = document.getElementById('botToken').value.trim();
+    const channelId = document.getElementById('channelId').value.trim();
+
+    if (!token) { showResult('Enter your bot token.', 'error'); return; }
+    if (!channelId) { showResult('Enter your channel ID or username.', 'error'); return; }
+    if (!selectedFile) { showResult('Choose a video file first.', 'error'); return; }
+
+    localStorage.setItem('tg_bot_token', token);
+    localStorage.setItem('tg_channel_id', channelId);
+
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    hideResult();
+
+    if (scheduleEnabled) {
+      await schedulePost(token, channelId);
+    } else {
+      await postNow(token, channelId);
+    }
+  }
+
+  // ---- Post immediately ----
+  async function postNow(token, channelId) {
+    setProgress(10, 'Uploading to Telegram...');
+
+    const formData = new FormData();
+    formData.append('chat_id', channelId);
+    formData.append('video_note', selectedFile);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.telegram.org/bot${token}/sendVideoNote`);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 80) + 10;
+        setProgress(pct, `Uploading... ${Math.round((e.loaded / e.total) * 100)}%`);
+      }
+    };
+
+    xhr.onload = () => {
+      hideProgress();
+      const data = JSON.parse(xhr.responseText);
+      if (data.ok) {
+        showResult('✓ Posted to your channel as a round video!', 'success');
+        resetFile();
+      } else {
+        showResult('Error: ' + friendlyError(data.description), 'error');
+        document.getElementById('sendBtn').disabled = false;
+      }
+    };
+
+    xhr.onerror = () => {
+      hideProgress();
+      showResult('Network error. Check your connection.', 'error');
+      document.getElementById('sendBtn').disabled = false;
+    };
+
+    xhr.send(formData);
+  }
+
+  // ---- Schedule post ----
+  async function schedulePost(token, channelId) {
+    const schedTimeVal = document.getElementById('scheduleTime').value;
+    if (!schedTimeVal) {
+      showResult('Pick a date and time to schedule.', 'error');
+      document.getElementById('sendBtn').disabled = false;
+      return;
+    }
+
+    const scheduledAt = new Date(schedTimeVal).toISOString();
+    if (new Date(scheduledAt) <= new Date()) {
+      showResult('Scheduled time must be in the future.', 'error');
+      document.getElementById('sendBtn').disabled = false;
+      return;
+    }
+
+    // Step 1: Upload file to get a temporary URL via Telegram's own file upload
+    // We use sendVideoNote with disable_notification to get a file_id, then delete it
+    // Actually: easiest approach is to upload to our Netlify function as base64
+    setProgress(20, 'Preparing video...');
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      setProgress(50, 'Sending to scheduler...');
+      const base64 = e.target.result; // data:video/mp4;base64,...
+
+      try {
+        const res = await fetch(FUNCTION_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botToken: token,
+            channelId,
+            fileBase64: base64,
+            scheduledAt,
+          }),
+        });
+
+        const data = await res.json();
+        hideProgress();
+
+        if (data.ok) {
+          const d = new Date(scheduledAt);
+          showResult(`✓ Scheduled for ${d.toLocaleDateString()} at ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}. You can close this page.`, 'success');
+          resetFile();
+          setTimeout(loadJobs, 500);
+        } else {
+          showResult('Error: ' + (data.error || 'Unknown error'), 'error');
+          document.getElementById('sendBtn').disabled = false;
+        }
+      } catch (err) {
+        hideProgress();
+        showResult('Could not reach scheduler. Make sure you\'ve deployed to Netlify.', 'error');
+        document.getElementById('sendBtn').disabled = false;
+      }
+    };
+
+    reader.readAsDataURL(selectedFile);
+  }
+
+  function resetFile() {
+    selectedFile = null;
+    document.getElementById('videoFile').value = '';
+    document.getElementById('fileChosen').style.display = 'none';
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('sendBtn').textContent = scheduleEnabled ? 'Schedule Post' : 'Post to Channel';
+  }
+
+  function friendlyError(msg) {
+    if (!msg) return 'Unknown error';
+    if (msg.includes('bot is not a member')) return 'Bot is not an admin in this channel.';
+    if (msg.includes('chat not found')) return 'Channel not found. Check the ID or username.';
+    if (msg.includes('Unauthorized')) return 'Invalid bot token.';
+    return msg;
+  }
+
+  // ---- Load jobs ----
+  async function loadJobs() {
+    try {
+      const res = await fetch(FUNCTION_BASE + '/jobs');
+      const data = await res.json();
+      if (!data.ok) return;
+
+      const jobs = data.jobs.filter(j => j.status === 'pending' || j.status === 'sent' || j.status === 'failed');
+      const card = document.getElementById('jobsCard');
+      const list = document.getElementById('jobsList');
+
+      if (jobs.length === 0) {
+        card.classList.remove('visible');
+        return;
+      }
+
+      card.classList.add('visible');
+      list.innerHTML = jobs.slice().reverse().map(j => {
+        const d = new Date(j.scheduledAt);
+        const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        const cancelBtn = j.status === 'pending'
+          ? `<button class="cancel-btn" onclick="cancelJob('${j.id}')" title="Cancel">✕</button>`
+          : '';
+        return `
+          <div class="job-item" id="job-${j.id}">
+            <div class="job-info">
+              <div class="job-time">${timeStr}</div>
+              <div class="job-channel">${j.channelId}</div>
+            </div>
+            <span class="job-status ${j.status}">${j.status}</span>
+            ${cancelBtn}
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      // Scheduler not available (local preview) — hide jobs card
+    }
+  }
+
+  async function cancelJob(jobId) {
+    try {
+      await fetch(FUNCTION_BASE + '/job/' + jobId, { method: 'DELETE' });
+      loadJobs();
+    } catch (e) {}
+  }
+
+  // Refresh jobs every 30s
+  setInterval(loadJobs, 30000);
+</script>
+</body>
+</html>

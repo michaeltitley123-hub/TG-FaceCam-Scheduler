@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"
+
+[[plugins]]
+  package = "@netlify/plugin-functions-install-deps"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[scheduled-functions]]
+  name = "schedule"
+  cron = "* * * * *"
